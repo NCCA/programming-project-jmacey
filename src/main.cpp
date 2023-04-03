@@ -4,7 +4,6 @@
 #include <SDL2/SDL.h>
 #include <cstdlib>
 #include <iostream>
-#include "NGLDraw.h"
 #include <ngl/NGLInit.h>
 
 /// @brief function to quit SDL with error message
@@ -30,14 +29,13 @@ int main(int argc, char * argv[])
 
   // now get the size of the display and create a window we need to init the video
   SDL_Rect rect;
-  SDL_GetDisplayBounds(0,&rect);
   // now create our window
-  SDL_Window *window=SDL_CreateWindow("SDLNGL",
+  SDL_Window *window=SDL_CreateWindow("SNAME",
                                       SDL_WINDOWPOS_CENTERED,
                                       SDL_WINDOWPOS_CENTERED,
-                                      rect.w/2,
-                                      rect.h/2,
-                                      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
+                                      500,
+                                      500,
+                                      SDL_WINDOW_OPENGL  | SDL_WINDOW_ALLOW_HIGHDPI
                                      );
   // check to see if that worked or exit
   if (!window)
@@ -61,18 +59,15 @@ int main(int argc, char * argv[])
   // this everything will crash
   ngl::NGLInit::initialize();
   // now clear the screen and swap whilst NGL inits (which may take time)
-  glClear(GL_COLOR_BUFFER_BIT);
   SDL_GL_SwapWindow(window);
   // flag to indicate if we need to exit
   bool quit=false;
   // sdl event processing data structure
   SDL_Event event;
-  // now we create an instance of our ngl class, this will init NGL and setup basic
-  // opengl stuff ext. When this falls out of scope the dtor will be called and cleanup
-  // our gl stuff
-  NGLDraw ngl;
   while(!quit)
   {
+  glClearColor(0.7,0.7,0.7,1.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     while ( SDL_PollEvent(&event) )
     {
@@ -80,22 +75,9 @@ int main(int argc, char * argv[])
       {
         // this is the window x being clicked.
         case SDL_QUIT : quit = true; break;
-        // process the mouse data by passing it to ngl class
-        case SDL_MOUSEMOTION : ngl.mouseMoveEvent(event.motion); break;
-        case SDL_MOUSEBUTTONDOWN : ngl.mousePressEvent(event.button); break;
-        case SDL_MOUSEBUTTONUP : ngl.mouseReleaseEvent(event.button); break;
-        case SDL_MOUSEWHEEL : ngl.wheelEvent(event.wheel); break;
         // if the window is re-sized pass it to the ngl class to change gl viewport
         // note this is slow as the context is re-create by SDL each time
         case SDL_WINDOWEVENT :
-          int w,h;
-          // get the new window size
-          SDL_GetWindowSize(window,&w,&h);
-          #ifdef __APPLE__
-            ngl.resize(w*2,h*2);
-          #else
-            ngl.resize(w,h);
-          #endif
         break;
 
         // now we look for a keydown event
@@ -105,14 +87,6 @@ int main(int argc, char * argv[])
           {
             // if it's the escape key quit
             case SDLK_ESCAPE :  quit = true; break;
-            case SDLK_w : glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); break;
-            case SDLK_s : glPolygonMode(GL_FRONT_AND_BACK,GL_FILL); break;
-            case SDLK_f :
-            SDL_SetWindowFullscreen(window,SDL_TRUE);
-            glViewport(0,0,rect.w*2,rect.h*2);
-            break;
-
-            case SDLK_g : SDL_SetWindowFullscreen(window,SDL_FALSE); break;
             default : break;
           } // end of key process
         } // end of keydown
@@ -122,8 +96,6 @@ int main(int argc, char * argv[])
       } // end of event switch
     } // end of poll events
 
-    // now we draw ngl
-    ngl.draw();
     // swap the buffers
     SDL_GL_SwapWindow(window);
 

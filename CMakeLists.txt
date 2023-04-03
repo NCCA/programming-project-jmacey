@@ -37,6 +37,12 @@ add_executable(${TargetName})
 # Add NGL include path
 include_directories(include $ENV{HOME}/NGL/include)
 target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
+${PROJECT_SOURCE_DIR}/src/Snake.cpp
+${PROJECT_SOURCE_DIR}/src/Arena.cpp
+${PROJECT_SOURCE_DIR}/src/Food.cpp
+${PROJECT_SOURCE_DIR}/include/Snake.h
+${PROJECT_SOURCE_DIR}/include/Arena.h
+${PROJECT_SOURCE_DIR}/include/Food.h
 )
 
 # need to add some exta libs for SDL under linux
