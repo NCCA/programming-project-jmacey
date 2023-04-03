@@ -5,7 +5,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <ngl/NGLInit.h>
-
+#include <ngl/VAOPrimitives.h>
+#include <ngl/Util.h>
+#include "Snake.h"
 /// @brief function to quit SDL with error message
 /// @param[in] _msg the error message to send
 void SDLErrorExit(const std::string &_msg);
@@ -58,6 +60,15 @@ int main(int argc, char * argv[])
   // be done once we have a valid GL context but before we call any GL commands. If we dont do
   // this everything will crash
   ngl::NGLInit::initialize();
+  // create our sphere for the rendering
+  ngl::VAOPrimitives::createSphere("sphere",1.0f,20.0f);
+  // Now create our camera and projections
+  auto view=ngl::lookAt({0,-20,0},{0,1,0},{0,0,1});
+  auto project=ngl::ortho(-150,150,-150,150,0.1f,200.0f); 
+  // Now build simple snake
+  auto snake=Snake(0,0,view,project);
+  
+
   // now clear the screen and swap whilst NGL inits (which may take time)
   SDL_GL_SwapWindow(window);
   // flag to indicate if we need to exit
@@ -87,6 +98,12 @@ int main(int argc, char * argv[])
           {
             // if it's the escape key quit
             case SDLK_ESCAPE :  quit = true; break;
+            case SDLK_UP : snake.setDirection(Direction::UP); break;
+            case SDLK_DOWN : snake.setDirection(Direction::DOWN); break;
+            case SDLK_LEFT : snake.setDirection(Direction::LEFT); break;
+            case SDLK_RIGHT : snake.setDirection(Direction::RIGHT); break;
+            case SDLK_SPACE : snake.setDirection(Direction::STOP); break;
+            case SDLK_a : snake.addSegment(); break;
             default : break;
           } // end of key process
         } // end of keydown
@@ -97,6 +114,9 @@ int main(int argc, char * argv[])
     } // end of poll events
 
     // swap the buffers
+    snake.move();
+    snake.draw();
+  
     SDL_GL_SwapWindow(window);
 
   }
