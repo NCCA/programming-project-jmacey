@@ -9,6 +9,7 @@
 #include <ngl/Util.h>
 #include <ngl/Text.h>
 #include <chrono>
+#include "Arena.h"
 
 #include "Snake.h"
 /// @brief function to quit SDL with error message
@@ -38,8 +39,8 @@ int main(int argc, char * argv[])
   SDL_Window *window=SDL_CreateWindow("SNAME",
                                       SDL_WINDOWPOS_CENTERED,
                                       SDL_WINDOWPOS_CENTERED,
-                                      500,
-                                      500,
+                                      800,
+                                      800,
                                       SDL_WINDOW_OPENGL  | SDL_WINDOW_ALLOW_HIGHDPI
                                      );
   // check to see if that worked or exit
@@ -66,10 +67,13 @@ int main(int argc, char * argv[])
   // create our sphere for the rendering
   ngl::VAOPrimitives::createSphere("sphere",1.0f,20.0f);
   // Now create our camera and projections
-  auto view=ngl::lookAt({0,-1,0},{0,1,0},{0,0,1});
+  auto view=ngl::lookAt({0,-20,0},{0,1,0},{0,0,1});
   auto project=ngl::ortho(-20,20,-20,20,0.1f,200.0f); 
   // Now build simple snake
   auto snake=Snake(0,0,view,project);
+  auto arena=Arena(40,40);
+
+
   auto textRender = std::make_unique<ngl::Text>("fonts/Arial.ttf", 18);
   textRender->setScreenSize(500, 500);
 
@@ -122,7 +126,7 @@ int main(int argc, char * argv[])
     } // end of poll events
 
     // swap the buffers
-    
+    arena.draw();
     snake.move();
     snake.draw();
     if(!snake.isAlive())

@@ -4,8 +4,7 @@
 #include <ngl/Vec3.h>
 #include <ngl/Mat4.h>
 #include <vector>
-enum class Direction : char {UP,DOWN,LEFT,RIGHT,STOP};
-
+#include "Directions.h"
 class Snake
 {
   public :
