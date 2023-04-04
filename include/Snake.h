@@ -14,6 +14,8 @@ class Snake
     void setDirection(Direction _dir);
     void addSegment();
     bool isAlive() const ;
+    void setDead();
+    ngl::Vec3 getPos() const;
   private :
     ngl::Vec3 m_pos;
     Direction m_currentDirection=Direction::UP;

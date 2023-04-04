@@ -11,7 +11,6 @@
 #include <chrono>
 #include "Arena.h"
 
-#include "Snake.h"
 /// @brief function to quit SDL with error message
 /// @param[in] _msg the error message to send
 void SDLErrorExit(const std::string &_msg);
@@ -39,8 +38,8 @@ int main(int argc, char * argv[])
   SDL_Window *window=SDL_CreateWindow("SNAME",
                                       SDL_WINDOWPOS_CENTERED,
                                       SDL_WINDOWPOS_CENTERED,
-                                      800,
-                                      800,
+                                      600,
+                                      600,
                                       SDL_WINDOW_OPENGL  | SDL_WINDOW_ALLOW_HIGHDPI
                                      );
   // check to see if that worked or exit
@@ -58,6 +57,7 @@ int main(int argc, char * argv[])
    }
    // make this our current GL context (we can have more than one window but in this case not)
    SDL_GL_MakeCurrent(window, glContext);
+   SDL_RaiseWindow(window);
   /* This makes our buffer swap syncronized with the monitor's vertical refresh */
   SDL_GL_SetSwapInterval(1);
   // we need to initialise the NGL lib which will load all of the OpenGL functions, this must
@@ -66,11 +66,7 @@ int main(int argc, char * argv[])
   ngl::NGLInit::initialize();
   // create our sphere for the rendering
   ngl::VAOPrimitives::createSphere("sphere",1.0f,20.0f);
-  // Now create our camera and projections
-  auto view=ngl::lookAt({0,-20,0},{0,1,0},{0,0,1});
-  auto project=ngl::ortho(-20,20,-20,20,0.1f,200.0f); 
-  // Now build simple snake
-  auto snake=Snake(0,0,view,project);
+  // Now build Arena
   auto arena=Arena(40,40);
 
 
@@ -110,12 +106,12 @@ int main(int argc, char * argv[])
           {
             // if it's the escape key quit
             case SDLK_ESCAPE :  quit = true; break;
-            case SDLK_UP : snake.setDirection(Direction::UP); break;
-            case SDLK_DOWN : snake.setDirection(Direction::DOWN); break;
-            case SDLK_LEFT : snake.setDirection(Direction::LEFT); break;
-            case SDLK_RIGHT : snake.setDirection(Direction::RIGHT); break;
-            case SDLK_SPACE : snake.setDirection(Direction::STOP); break;
-            case SDLK_a : snake.addSegment(); break;
+            case SDLK_UP : arena.setDirection(Direction::UP); break;
+            case SDLK_DOWN : arena.setDirection(Direction::DOWN); break;
+            case SDLK_LEFT : arena.setDirection(Direction::LEFT); break;
+            case SDLK_RIGHT : arena.setDirection(Direction::RIGHT); break;
+            case SDLK_SPACE : arena.setDirection(Direction::STOP); break;
+            //case SDLK_a : arena.addSegment(); break;
             default : break;
           } // end of key process
         } // end of keydown
@@ -126,10 +122,9 @@ int main(int argc, char * argv[])
     } // end of poll events
 
     // swap the buffers
+    arena.update();
     arena.draw();
-    snake.move();
-    snake.draw();
-    if(!snake.isAlive())
+    if(arena.gameOver())
     {
       textRender->setColour(1.0f, 0.0f, 0.0f);
       textRender->renderText(100, 250, "Game Over");

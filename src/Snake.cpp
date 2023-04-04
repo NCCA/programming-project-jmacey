@@ -93,3 +93,13 @@ void Snake::checkSelfCollision()
     m_alive=false;
   }
 }
+
+ngl::Vec3 Snake::getPos() const
+{
+  return m_pos;
+}
+
+void Snake::setDead()
+{
+  m_alive=false;
+}
