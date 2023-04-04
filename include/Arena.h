@@ -9,7 +9,7 @@ class Arena
   public :
     Arena(int _width, int _depth);
     void draw() const;
-    void update();
+    void update(float _delta);
     void setDirection(Direction _dir);
     bool gameOver() const;
   private :

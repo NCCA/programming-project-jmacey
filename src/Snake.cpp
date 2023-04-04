@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <ngl/NGLStream.h>
-constexpr float g_step=1.0f;
+constexpr float g_step=0.7f;
 
 Snake::Snake(float _x, float _z,ngl::Mat4 &_view, ngl::Mat4 &_project) : m_pos{_x,0.0f,_z}, m_view{_view}, m_project{_project}
 {
@@ -20,24 +20,24 @@ void Snake::setDirection(Direction _dir)
 void Snake::addSegment()
 {
   m_segments.push_back(m_pos);
-  updateSegment(m_pos);
+  updateSegment(m_pos,m_lastDelta);
 }
 
-void Snake::updateSegment(ngl::Vec3 &_s)
+void Snake::updateSegment(ngl::Vec3 &_s,float _delta)
 {
   switch(m_currentDirection)
   {
     case Direction::UP :
-      _s.m_z += g_step;
+      _s.m_z += _delta;
     break;
     case Direction::DOWN :
-       _s.m_z -= g_step;
+       _s.m_z -= _delta;
     break;
     case Direction::LEFT :
-       _s.m_x -= g_step;
+       _s.m_x -= _delta;
     break;
     case Direction::RIGHT :
-       _s.m_x += g_step;
+       _s.m_x += _delta;
     break;
     default : break;
   }
@@ -45,7 +45,7 @@ void Snake::updateSegment(ngl::Vec3 &_s)
 }
 
 
-void Snake::move()
+void Snake::move(float _delta)
 {
 
   // update lead segment
@@ -54,24 +54,25 @@ void Snake::move()
     std::rotate(std::begin(m_segments),std::begin(m_segments)+1,std::end(m_segments));
     m_segments[0]=m_pos;
   }
-  updateSegment(m_pos);
+  updateSegment(m_pos,_delta);
   checkSelfCollision();
+  m_lastDelta=_delta;
 }
 
 void Snake::draw() const
 {
   ngl::ShaderLib::use(ngl::nglColourShader);
   ngl::ShaderLib::setUniform("Colour",1.0f,0.0f,0.0f,1.0f);
-
   auto draw=[this](ngl::Vec3 _p){
     auto tx=ngl::Transformation();
     tx.setPosition(_p);
     tx.setScale(.9f,.9f,.9f);
     auto MVP=m_project*m_view*tx.getMatrix();
     ngl::ShaderLib::setUniform("MVP",MVP);
-    ngl::VAOPrimitives::draw(ngl::cube);
+    ngl::VAOPrimitives::draw("sphere"); //ngl::cube);
   };
   draw(m_pos);
+  std::cout<<m_pos<<"\n";
   for(auto s : m_segments)
   {
     draw(s);

@@ -3,6 +3,8 @@
 #include <ngl/VAOPrimitives.h>
 #include <ngl/ShaderLib.h>
 #include <ngl/Transformation.h>
+#include <ngl/NGLStream.h>
+#include <iostream>
 Arena::Arena(int _width,int _depth) : m_width{_width}, m_depth{_depth}
 {
   m_xExtent=m_width/2.0f;
@@ -56,20 +58,23 @@ bool Arena::gameOver() const
 void Arena::checkArenaCollision()
 {
   auto pos=m_snake->getPos();
-  if(pos.m_x <=-m_xExtent || pos.m_y>=m_xExtent ||
-    pos.m_z <=-m_zExtent || pos.m_z>=m_zExtent)
+  if(pos.m_x <=-m_xExtent || pos.m_x>=m_xExtent ||
+     pos.m_z <=-m_zExtent || pos.m_z >m_zExtent)
     {
       m_snake->setDead();
       m_snake->setDirection(Direction::STOP);
     }
 }
 
-void Arena::update()
+void Arena::update(float _delta)
 {
   static int count=0;
-  if(++count %100)
-    m_snake->addSegment();
-  m_snake->move();
+  m_snake->move(_delta);
+  if(++count >=10)
+  {
+      m_snake->addSegment();
+      count=0;
+  }
   checkArenaCollision();
   
 

@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
   // this everything will crash
   ngl::NGLInit::initialize();
   // create our sphere for the rendering
-  ngl::VAOPrimitives::createSphere("sphere",1.0f,20.0f);
+  ngl::VAOPrimitives::createSphere("sphere",0.5f,20.0f);
   // Now build Arena
   auto arena=Arena(40,40);
 
@@ -82,7 +82,7 @@ int main(int argc, char * argv[])
   SDL_Event event;
   auto previousTime=std::chrono::high_resolution_clock::now();
   auto currentTime = std::chrono::high_resolution_clock::now();
-
+  float delta=0.01f;
   while(!quit)
   {
   glClearColor(0.7,0.7,0.7,1.0);
@@ -122,19 +122,21 @@ int main(int argc, char * argv[])
     } // end of poll events
 
     // swap the buffers
-    arena.update();
+    std::cout<<60.0*delta<<"\n";
+    arena.update(0.4);
     arena.draw();
+
     if(arena.gameOver())
     {
       textRender->setColour(1.0f, 0.0f, 0.0f);
       textRender->renderText(100, 250, "Game Over");
     }
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    delta = std::chrono::duration<float,std::chrono::seconds::period>(currentTime-previousTime).count();
+    previousTime=currentTime;
     SDL_GL_SwapWindow(window);
 
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    auto delta = std::chrono::duration<float,std::chrono::seconds::period>(currentTime-previousTime).count();
-    SDL_Delay(delta*800);
-    previousTime=currentTime;
+    //SDL_Delay(delta*900);
 
   }
   // now tidy up and exit SDL
