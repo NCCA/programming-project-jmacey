@@ -27,5 +27,4 @@ Will use as much build in NGL stuff to start with for ease, so nglColourShader f
 2. copy SDLNGL/src/main.cpp into src and edit to make simple loop
 3. created empty class files for Arena, Snake and Food and added them to the CMakeLists.txt
 4. uploaded to Github.
-
 Will now start on [Part3.md](Part3.md)
