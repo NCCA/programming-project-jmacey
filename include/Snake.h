@@ -14,18 +14,16 @@ class Snake
     void draw() const;
     void setDirection(Direction _dir);
     void addSegment();
+    bool isAlive() const ;
   private :
-
-    struct Segment
-    {
-      ngl::Vec3 m_lastPos;
-      Direction m_lastDirection;
-    };
-    std::vector<Segment> m_segments;
-    void updateSegment(Segment &_s);
+    ngl::Vec3 m_pos;
     Direction m_currentDirection=Direction::UP;
+    std::vector<ngl::Vec3> m_segments;
+    void updateSegment(ngl::Vec3 &_s);
+    void checkSelfCollision();
     ngl::Mat4 &m_view;
     ngl::Mat4 &m_project;
+    bool m_alive=true;
 
 
 };

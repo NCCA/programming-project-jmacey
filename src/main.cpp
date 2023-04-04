@@ -7,6 +7,9 @@
 #include <ngl/NGLInit.h>
 #include <ngl/VAOPrimitives.h>
 #include <ngl/Util.h>
+#include <ngl/Text.h>
+#include <chrono>
+
 #include "Snake.h"
 /// @brief function to quit SDL with error message
 /// @param[in] _msg the error message to send
@@ -63,11 +66,13 @@ int main(int argc, char * argv[])
   // create our sphere for the rendering
   ngl::VAOPrimitives::createSphere("sphere",1.0f,20.0f);
   // Now create our camera and projections
-  auto view=ngl::lookAt({0,-20,0},{0,1,0},{0,0,1});
-  auto project=ngl::ortho(-150,150,-150,150,0.1f,200.0f); 
+  auto view=ngl::lookAt({0,-1,0},{0,1,0},{0,0,1});
+  auto project=ngl::ortho(-20,20,-20,20,0.1f,200.0f); 
   // Now build simple snake
   auto snake=Snake(0,0,view,project);
-  
+  auto textRender = std::make_unique<ngl::Text>("fonts/Arial.ttf", 18);
+  textRender->setScreenSize(500, 500);
+
 
   // now clear the screen and swap whilst NGL inits (which may take time)
   SDL_GL_SwapWindow(window);
@@ -75,6 +80,9 @@ int main(int argc, char * argv[])
   bool quit=false;
   // sdl event processing data structure
   SDL_Event event;
+  auto previousTime=std::chrono::high_resolution_clock::now();
+  auto currentTime = std::chrono::high_resolution_clock::now();
+
   while(!quit)
   {
   glClearColor(0.7,0.7,0.7,1.0);
@@ -114,10 +122,20 @@ int main(int argc, char * argv[])
     } // end of poll events
 
     // swap the buffers
+    
     snake.move();
     snake.draw();
-  
+    if(!snake.isAlive())
+    {
+      textRender->setColour(1.0f, 0.0f, 0.0f);
+      textRender->renderText(100, 250, "Game Over");
+    }
     SDL_GL_SwapWindow(window);
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    auto delta = std::chrono::duration<float,std::chrono::seconds::period>(currentTime-previousTime).count();
+    SDL_Delay(delta*800);
+    previousTime=currentTime;
 
   }
   // now tidy up and exit SDL

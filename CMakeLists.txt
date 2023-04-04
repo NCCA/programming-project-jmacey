@@ -55,8 +55,8 @@ target_link_libraries(${TargetName} PRIVATE NGL)
 # Link in the SDL2 libraries
 target_link_libraries(${TargetName} PRIVATE SDL2::SDL2)
 
-#add_custom_target(${TargetName}CopyShaders ALL
-#    COMMAND ${CMAKE_COMMAND} -E copy_directory
-#    ${CMAKE_CURRENT_SOURCE_DIR}/shaders
-#    $<TARGET_FILE_DIR:${TargetName}>/shaders
-#)
+add_custom_target(${TargetName}CopyShaders ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/fonts
+    $<TARGET_FILE_DIR:${TargetName}>/fonts
+)
