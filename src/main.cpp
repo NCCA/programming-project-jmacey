@@ -6,6 +6,7 @@
 #include <iostream>
 #include <ngl/NGLInit.h>
 #include <ngl/VAOPrimitives.h>
+#include <ngl/ShaderLib.h>
 #include <ngl/Random.h>
 #include <ngl/Util.h>
 #include <ngl/Text.h>
@@ -33,8 +34,8 @@ int main(int argc, char * argv[])
   }
 
   // now create our window
-  int screenWidth=800;
-  int screenHeight=800;
+  int screenWidth=600;
+  int screenHeight=600;
   SDL_Window *window=SDL_CreateWindow("SNAKE ",
                                       SDL_WINDOWPOS_CENTERED,
                                       SDL_WINDOWPOS_CENTERED,
@@ -63,12 +64,24 @@ int main(int argc, char * argv[])
   // we need to initialise the NGL lib which will load all of the OpenGL functions, this must
   // be done once we have a valid GL context but before we call any GL commands. If we dont do
   // this everything will crash
-  ngl::NGLInit::initialize();
-  // create our sphere for the rendering
-  ngl::VAOPrimitives::createSphere("sphere",0.5f,20.0f);
   // Now build Arena
   constexpr int ArenaWidth=40;
   constexpr int ArenaHeight=40;
+  ngl::NGLInit::initialize();
+  // setup checker shader
+  ngl::ShaderLib::use(ngl::nglCheckerShader);
+  ngl::ShaderLib::setUniform("lightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
+  ngl::ShaderLib::setUniform("checkOn", true);
+  ngl::ShaderLib::setUniform("lightPos", 0.0f,2.0f,0.0f);
+  ngl::ShaderLib::setUniform("colour1", 0.9f, 0.9f, 0.9f, 1.0f);
+  ngl::ShaderLib::setUniform("colour2", 0.6f, 0.6f, 0.6f, 1.0f);
+  ngl::ShaderLib::setUniform("checkSize", 10.0f);
+  ngl::ShaderLib::setUniform("normalMatrix",ngl::Mat3());
+
+  // create our sphere for the rendering
+  ngl::VAOPrimitives::createSphere("sphere",0.5f,20.0f);
+  // and floor
+  ngl::VAOPrimitives::createTrianglePlane("floor",ArenaWidth,ArenaHeight,10,10,ngl::Vec3(0,1,0));
   // We can add distributions to ngl::Random like this by default there are
   // no integer ones.
   std::uniform_int_distribution<> foodTimer(10,200);

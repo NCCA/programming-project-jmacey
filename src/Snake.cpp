@@ -34,10 +34,10 @@ void Snake::updateSegment(ngl::Vec3 &_s)
        _s.m_z += g_step;
     break;
     case Direction::LEFT :
-       _s.m_x -= g_step;
+       _s.m_x += g_step;
     break;
     case Direction::RIGHT :
-       _s.m_x += g_step;
+       _s.m_x -= g_step;
     break;
     default : break;
   }
@@ -61,7 +61,7 @@ void Snake::move()
 void Snake::draw() const
 {
   ngl::ShaderLib::use(ngl::nglColourShader);
-  ngl::ShaderLib::setUniform("Colour",1.0f,0.0f,0.0f,1.0f);
+  ngl::ShaderLib::setUniform("Colour",0.8f,0.0f,1.0f,1.0f);
   auto draw=[this](ngl::Vec3 _p){
     auto tx=ngl::Transformation();
     tx.setPosition(_p);
