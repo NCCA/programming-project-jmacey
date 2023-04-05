@@ -28,10 +28,10 @@ void Snake::updateSegment(ngl::Vec3 &_s)
   switch(m_currentDirection)
   {
     case Direction::UP :
-      _s.m_z += g_step;
+      _s.m_z -= g_step;
     break;
     case Direction::DOWN :
-       _s.m_z -= g_step;
+       _s.m_z += g_step;
     break;
     case Direction::LEFT :
        _s.m_x -= g_step;

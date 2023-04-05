@@ -34,7 +34,7 @@ void Arena::draw()
       case Direction::STOP : break;
     }
     auto pos=m_snake->getPos();
-    m_view=ngl::lookAt({0,50,90},{0,0,0},{0,1,-0});
+    m_view=ngl::lookAt({0,20,60},{0,0,0},{0,1,0});
   }
 
   ngl::Transformation tx;
@@ -119,13 +119,13 @@ void Arena::setCamera(CameraMode _mode)
         m_xExtent=m_width/2.0f;
         m_zExtent=m_depth/2.0f;  
         m_view=ngl::lookAt({0,-m_zExtent,0},{0,1,0},{0,0,1});
-        m_project=ngl::ortho(-m_xExtent-1,m_xExtent+1,-m_zExtent-1,m_zExtent+1,0.1f,300.0f); 
+        m_project=ngl::ortho(-m_xExtent-1,m_xExtent+1,m_zExtent+1,-m_zExtent-1,0.1f,300.0f); 
         m_cameraMode=CameraMode::_2D;
     break;
 
     case CameraMode::_3D :
         m_cameraMode=CameraMode::_3D;
-        m_project=ngl::perspective(25.0f,1.0f,0.1f,300.0f); 
+        m_project=ngl::perspective(45.0f,1.0f,0.1f,300.0f); 
     break;
   }
 }
