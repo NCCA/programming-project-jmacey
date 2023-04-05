@@ -8,12 +8,15 @@
 class Arena
 {
   public :
+    enum class CameraMode{_2D,_3D};
     Arena(int _width, int _depth);
-    void draw() const;
+    void draw() ;
     void update();
     void setDirection(Direction _dir);
     bool gameOver() const;
     int getScore() const;
+    void resetGame();
+    void setCamera(CameraMode _mode);
   private :
 
     void checkArenaCollision();
@@ -27,6 +30,9 @@ class Arena
     std::unique_ptr<Snake> m_snake;
     std::unique_ptr<Food> m_food;
     int m_score=0;
+    CameraMode m_cameraMode=CameraMode::_2D;
+    Direction m_currentDirection;
+    
 };
 
 #endif

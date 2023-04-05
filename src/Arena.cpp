@@ -8,17 +8,35 @@
 
 Arena::Arena(int _width,int _depth) : m_width{_width}, m_depth{_depth}
 {
-  m_xExtent=m_width/2.0f;
-  m_zExtent=m_depth/2.0f;
-
-  m_view=ngl::lookAt({0,-m_zExtent,0},{0,1,0},{0,0,1});
-  m_project=ngl::ortho(-m_xExtent,m_xExtent,-m_zExtent,m_zExtent,0.1f,300.0f); 
-  m_snake=std::make_unique<Snake>(0,0,m_view,m_project);
-  m_food = std::make_unique<Food>(_width,_depth,m_view,m_project);
+  setCamera(CameraMode::_2D);
+  resetGame();
 }
 
-void Arena::draw() const
+void Arena::resetGame() 
 {
+  m_snake=std::make_unique<Snake>(0,0,m_view,m_project);
+  m_food = std::make_unique<Food>(m_width,m_depth,m_view,m_project);
+  m_score=0;
+}
+
+void Arena::draw() 
+{
+
+  if(m_cameraMode==CameraMode::_3D)
+  {
+    ngl::Vec3 look;
+    switch(m_currentDirection)
+    {
+      case Direction::UP : look.set(0,0,1); break;
+      case Direction::DOWN : look.set(0,0,-1); break;
+      case Direction::LEFT : look.set(1,0,0); break;
+      case Direction::RIGHT: look.set(-1,0,0); break;
+      case Direction::STOP : break;
+    }
+    auto pos=m_snake->getPos();
+    m_view=ngl::lookAt({0,50,90},{0,0,0},{0,1,-0});
+  }
+
   ngl::Transformation tx;
   ngl::ShaderLib::use(ngl::nglColourShader);
   ngl::ShaderLib::setUniform("Colour",1.0f,0.0f,1.0f,0.0f);
@@ -29,6 +47,7 @@ void Arena::draw() const
     ngl::ShaderLib::setUniform("MVP",MVP);
     ngl::VAOPrimitives::draw("cube");
     tx.setPosition(x,0,m_zExtent);
+    tx.setScale(0.8f,0.8f,0.8f);
     MVP=m_project*m_view*tx.getMatrix();
     ngl::ShaderLib::setUniform("MVP",MVP);
     ngl::VAOPrimitives::draw("cube");
@@ -40,6 +59,7 @@ void Arena::draw() const
     ngl::ShaderLib::setUniform("MVP",MVP);
     ngl::VAOPrimitives::draw("cube");
     tx.setPosition(m_xExtent,0,z);
+    tx.setScale(0.8f,0.8f,0.8f);
     MVP=m_project*m_view*tx.getMatrix();
     ngl::ShaderLib::setUniform("MVP",MVP);
     ngl::VAOPrimitives::draw("cube");
@@ -50,6 +70,7 @@ void Arena::draw() const
 
 void Arena::setDirection(Direction _dir)
 {
+  m_currentDirection=_dir;
   m_snake->setDirection(_dir);
 }
 
@@ -62,7 +83,7 @@ void Arena::checkArenaCollision()
 {
   auto pos=m_snake->getPos();
   if(pos.m_x <=-m_xExtent || pos.m_x>=m_xExtent ||
-     pos.m_z <=-m_zExtent || pos.m_z >m_zExtent)
+     pos.m_z <=-m_zExtent || pos.m_z >=m_zExtent)
     {
       m_snake->setDead();
       m_snake->setDirection(Direction::STOP);
@@ -88,4 +109,23 @@ void Arena::update()
   }
 
 
+}
+
+void Arena::setCamera(CameraMode _mode)
+{
+  switch(_mode)
+  {
+    case CameraMode::_2D :
+        m_xExtent=m_width/2.0f;
+        m_zExtent=m_depth/2.0f;  
+        m_view=ngl::lookAt({0,-m_zExtent,0},{0,1,0},{0,0,1});
+        m_project=ngl::ortho(-m_xExtent-1,m_xExtent+1,-m_zExtent-1,m_zExtent+1,0.1f,300.0f); 
+        m_cameraMode=CameraMode::_2D;
+    break;
+
+    case CameraMode::_3D :
+        m_cameraMode=CameraMode::_3D;
+        m_project=ngl::perspective(25.0f,1.0f,0.1f,300.0f); 
+    break;
+  }
 }

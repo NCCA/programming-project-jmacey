@@ -21,6 +21,7 @@ void Food::draw() const
   tx.setPosition(m_pos);
   auto MVP=m_project*m_view*tx.getMatrix();
   ngl::ShaderLib::setUniform("MVP",MVP);
+  ngl::ShaderLib::setUniform("Colour",0.0f,0.0f,1.0f,1.0f);
   ngl::VAOPrimitives::draw("sphere");
 }
 

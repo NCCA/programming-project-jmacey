@@ -32,14 +32,14 @@ int main(int argc, char * argv[])
     SDLErrorExit("Unable to initialize SDL");
   }
 
-  // now get the size of the display and create a window we need to init the video
-  SDL_Rect rect;
   // now create our window
+  int screenWidth=800;
+  int screenHeight=800;
   SDL_Window *window=SDL_CreateWindow("SNAKE ",
                                       SDL_WINDOWPOS_CENTERED,
                                       SDL_WINDOWPOS_CENTERED,
-                                      600,
-                                      600,
+                                      screenWidth,
+                                      screenHeight,
                                       SDL_WINDOW_OPENGL  | SDL_WINDOW_ALLOW_HIGHDPI
                                      );
   // check to see if that worked or exit
@@ -69,7 +69,6 @@ int main(int argc, char * argv[])
   // Now build Arena
   constexpr int ArenaWidth=40;
   constexpr int ArenaHeight=40;
-  auto arena=Arena(ArenaWidth,ArenaHeight);
   // We can add distributions to ngl::Random like this by default there are
   // no integer ones.
   std::uniform_int_distribution<> foodTimer(10,200);
@@ -80,8 +79,12 @@ int main(int argc, char * argv[])
   std::uniform_int_distribution<> foodRangeHeight(-(ArenaHeight-1)/2,(ArenaHeight-1)/2);
   ngl::Random::addIntGenerator("foodRangeHeight",foodRangeHeight);
 
+
+  auto arena=Arena(ArenaWidth,ArenaHeight);
+
+
   auto textRender = std::make_unique<ngl::Text>("fonts/Arial.ttf", 18);
-  textRender->setScreenSize(500, 500);
+  textRender->setScreenSize(screenWidth, screenHeight);
 
 
   // now clear the screen and swap whilst NGL inits (which may take time)
@@ -121,6 +124,10 @@ int main(int argc, char * argv[])
             case SDLK_LEFT : arena.setDirection(Direction::LEFT); break;
             case SDLK_RIGHT : arena.setDirection(Direction::RIGHT); break;
             case SDLK_SPACE : arena.setDirection(Direction::STOP); break;
+            case SDLK_r : arena.resetGame(); break;
+            case SDLK_1 : arena.setCamera(Arena::CameraMode::_2D); break;
+            case SDLK_2 : arena.setCamera(Arena::CameraMode::_3D); break;
+            
             //case SDLK_a : arena.addSegment(); break;
             default : break;
           } // end of key process
@@ -133,14 +140,14 @@ int main(int argc, char * argv[])
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     textRender->setColour(0.0f,0.0f,0.0f);
-    textRender->renderText(10,480, fmt::format("Score {}",arena.getScore()));
+    textRender->renderText(50,screenHeight-60, fmt::format("Score {}",arena.getScore()));
 
     arena.draw();
     arena.update();
     if(arena.gameOver())
     {
       textRender->setColour(1.0f, 0.0f, 0.0f);
-      textRender->renderText(100, 250, "Game Over");
+      textRender->renderText(100, screenWidth/2, "Game Over Press R to reset");
     }
     delta = std::chrono::duration<float,std::chrono::seconds::period>(currentTime-previousTime).count();
     previousTime=currentTime;
