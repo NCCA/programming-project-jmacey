@@ -6,6 +6,7 @@
 #include <iostream>
 #include <ngl/NGLInit.h>
 #include <ngl/VAOPrimitives.h>
+#include <ngl/Random.h>
 #include <ngl/Util.h>
 #include <ngl/Text.h>
 #include <chrono>
@@ -19,14 +20,13 @@ void SDLErrorExit(const std::string &_msg);
 SDL_GLContext createOpenGLContext( SDL_Window *window);
 
 
-
 int main(int argc, char * argv[])
 {
   // under windows we must use main with argc / v so jus flag unused for params
   NGL_UNUSED(argc);
   NGL_UNUSED(argv);
   // Initialize SDL's Video subsystem
-  if (SDL_Init(SDL_INIT_VIDEO) < 0 )
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0 )
   {
     // Or die on error
     SDLErrorExit("Unable to initialize SDL");
@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
   // now get the size of the display and create a window we need to init the video
   SDL_Rect rect;
   // now create our window
-  SDL_Window *window=SDL_CreateWindow("SNAME",
+  SDL_Window *window=SDL_CreateWindow("SNAKE ",
                                       SDL_WINDOWPOS_CENTERED,
                                       SDL_WINDOWPOS_CENTERED,
                                       600,
@@ -67,8 +67,18 @@ int main(int argc, char * argv[])
   // create our sphere for the rendering
   ngl::VAOPrimitives::createSphere("sphere",0.5f,20.0f);
   // Now build Arena
-  auto arena=Arena(40,40);
-
+  constexpr int ArenaWidth=40;
+  constexpr int ArenaHeight=40;
+  auto arena=Arena(ArenaWidth,ArenaHeight);
+  // We can add distributions to ngl::Random like this by default there are
+  // no integer ones.
+  std::uniform_int_distribution<> foodTimer(10,200);
+  ngl::Random::addIntGenerator("foodTimer",foodTimer);
+  std::uniform_int_distribution<> foodRangeWidth(-(ArenaWidth-1)/2,(ArenaWidth-1)/2);
+  ngl::Random::addIntGenerator("foodRangeWidth",foodRangeWidth);
+  
+  std::uniform_int_distribution<> foodRangeHeight(-(ArenaHeight-1)/2,(ArenaHeight-1)/2);
+  ngl::Random::addIntGenerator("foodRangeHeight",foodRangeHeight);
 
   auto textRender = std::make_unique<ngl::Text>("fonts/Arial.ttf", 18);
   textRender->setScreenSize(500, 500);
@@ -121,22 +131,22 @@ int main(int argc, char * argv[])
       } // end of event switch
     } // end of poll events
 
-    // swap the buffers
-    std::cout<<60.0*delta<<"\n";
-    arena.update(0.4);
-    arena.draw();
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    textRender->setColour(0.0f,0.0f,0.0f);
+    textRender->renderText(10,480, fmt::format("Score {}",arena.getScore()));
 
+    arena.draw();
+    arena.update();
     if(arena.gameOver())
     {
       textRender->setColour(1.0f, 0.0f, 0.0f);
       textRender->renderText(100, 250, "Game Over");
     }
-    auto currentTime = std::chrono::high_resolution_clock::now();
     delta = std::chrono::duration<float,std::chrono::seconds::period>(currentTime-previousTime).count();
     previousTime=currentTime;
     SDL_GL_SwapWindow(window);
 
-    //SDL_Delay(delta*900);
+    SDL_Delay(delta*850);
 
   }
   // now tidy up and exit SDL

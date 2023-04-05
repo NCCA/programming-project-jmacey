@@ -3,15 +3,17 @@
 #include <ngl/Mat4.h>
 #include "Directions.h"
 #include "Snake.h"
+#include "Food.h"
 #include <memory>
 class Arena
 {
   public :
     Arena(int _width, int _depth);
     void draw() const;
-    void update(float _delta);
+    void update();
     void setDirection(Direction _dir);
     bool gameOver() const;
+    int getScore() const;
   private :
 
     void checkArenaCollision();
@@ -23,6 +25,8 @@ class Arena
     ngl::Mat4 m_view;
     ngl::Mat4 m_project;
     std::unique_ptr<Snake> m_snake;
+    std::unique_ptr<Food> m_food;
+    int m_score=0;
 };
 
 #endif

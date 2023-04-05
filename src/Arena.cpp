@@ -5,6 +5,7 @@
 #include <ngl/Transformation.h>
 #include <ngl/NGLStream.h>
 #include <iostream>
+
 Arena::Arena(int _width,int _depth) : m_width{_width}, m_depth{_depth}
 {
   m_xExtent=m_width/2.0f;
@@ -13,6 +14,7 @@ Arena::Arena(int _width,int _depth) : m_width{_width}, m_depth{_depth}
   m_view=ngl::lookAt({0,-m_zExtent,0},{0,1,0},{0,0,1});
   m_project=ngl::ortho(-m_xExtent,m_xExtent,-m_zExtent,m_zExtent,0.1f,300.0f); 
   m_snake=std::make_unique<Snake>(0,0,m_view,m_project);
+  m_food = std::make_unique<Food>(_width,_depth,m_view,m_project);
 }
 
 void Arena::draw() const
@@ -43,6 +45,7 @@ void Arena::draw() const
     ngl::VAOPrimitives::draw("cube");
   }
   m_snake->draw();
+  m_food->draw();
 }
 
 void Arena::setDirection(Direction _dir)
@@ -66,17 +69,23 @@ void Arena::checkArenaCollision()
     }
 }
 
-void Arena::update(float _delta)
+int Arena::getScore() const
+{
+  return m_score;
+}
+
+void Arena::update()
 {
   static int count=0;
-  m_snake->move(_delta);
-  if(++count >=10)
-  {
-      m_snake->addSegment();
-      count=0;
-  }
+  m_snake->move();
+  m_food->update();
   checkArenaCollision();
-  
+  if(m_snake->getPos() == m_food->getPos())
+  {
+    m_snake->addSegment();
+    m_food->resetFood();
+    m_score++;
+  }
 
 
 }

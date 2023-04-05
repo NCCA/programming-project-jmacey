@@ -9,7 +9,7 @@ class Snake
 {
   public :
     Snake(float _x, float _y,ngl::Mat4 &_view, ngl::Mat4 &_project);
-    void move(float _delta);
+    void move();
     void draw() const;
     void setDirection(Direction _dir);
     void addSegment();
@@ -20,12 +20,11 @@ class Snake
     ngl::Vec3 m_pos;
     Direction m_currentDirection=Direction::UP;
     std::vector<ngl::Vec3> m_segments;
-    void updateSegment(ngl::Vec3 &_s,float _delta);
+    void updateSegment(ngl::Vec3 &_s);
     void checkSelfCollision();
     ngl::Mat4 &m_view;
     ngl::Mat4 &m_project;
     bool m_alive=true;
-    float m_lastDelta=1.0f;
 
 
 };
